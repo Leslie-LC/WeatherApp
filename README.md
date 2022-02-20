@@ -2,6 +2,9 @@
 
 A Quasar Framework app
 
+###run web app
+npx quasar dev
+
 ## Install the dependencies
 ```bash
 npm install
