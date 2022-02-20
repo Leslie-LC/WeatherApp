@@ -2,7 +2,8 @@
 
 A Quasar Framework app
 
-###run web app
+# run web Quasar App (weatherProject)
+
 npx quasar dev
 
 ## Install the dependencies
