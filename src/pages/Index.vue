@@ -1,5 +1,5 @@
 <template>
-  <q-page class="flex column">
+  <q-page class="flex column" :class="bgClass">
     <!-- header 搜索栏 -->
     <div class="col q-pt-lg q-px-md">
       <q-input
@@ -38,7 +38,7 @@
         </div>
       </div>
       <!-- UI显示天气图标 -->
-      <div class="col text-center">
+      <div class="col text-center text-h2">
         <!-- <img src="https://www.fillmurray.com/100/100" alt="Bill" /> -->
         <i :class="`qi-${weatherDate.now.icon}`"></i>
       </div>
@@ -47,8 +47,8 @@
     <template v-else>
       <div class="col column text-center text-white">
         <div class="col text-h2 text-weight-thin">
-          我爱你 <br />
-          方婷！！
+          Quasar <br />
+          weather
         </div>
         <q-btn @click="getLocation" class="col" flat>
           <q-icon left size="3em" name="my_location" />
@@ -85,8 +85,22 @@ export default defineComponent({
       apiKey: "2c911a104cf14135af8dc1f9f9b01fc4",
     };
   },
+  computed: {
+    // 判断当前时间为白天还是晚上，用来更换背景
+    bgClass() {
+      if(this.weatherDate) {
+        if(this.weatherDate.updateTime.slice(11,13) > 6 && this.weatherDate.updateTime.slice(11,13) < 18) {
+          return 'bg-day';
+        }else {
+          return 'bg-night';
+        }
+      }
+      return 'q-page';
+    }
+  },
   methods: {
     getLocation() {
+      this.$q.loading.show()
       // 获取当前位置的经纬度信息
       navigator.geolocation.getCurrentPosition((position) => {
         // lat 纬度 接口需要保留两位小数
@@ -98,6 +112,7 @@ export default defineComponent({
       });
     },
     getWeatherBycoords() {
+      this.$q.loading.show()
       // 第一次请求天气状况、温度、icon等数据
       axios
         .get(`${this.weatherApiUrl}`, {
@@ -109,8 +124,9 @@ export default defineComponent({
           },
         })
         .then((res) => {
+          // console.log(res);        
           this.weatherDate = res.data;
-          console.log(this.weatherDate);
+          console.log(this.weatherDate.updateTime.slice(11,13));
         })
         .catch((error) => {
           console.log(error);
@@ -124,13 +140,16 @@ export default defineComponent({
           },
         })
         .then((res) => {
+          // console.log(res);
           this.weatherDate2 = res.data.location[0];
+          this.$q.loading.hide()
         })
         .catch((error) => {
           console.log(error);
         });
     },
     getWeatherBysearch() {
+      this.$q.loading.show()
       axios
         .get(`${this.cityApiUrl}`, {
           params: {
@@ -142,6 +161,7 @@ export default defineComponent({
           this.lat = res.data.location[0].lat;
           this.lon = res.data.location[0].lon;
           this.getWeatherBycoords();
+          this.$q.loading.hide()
         })
         .catch((error) => {
           console.log(error);
@@ -154,11 +174,16 @@ export default defineComponent({
 <style lang="sass">
 .q-page
   background: linear-gradient(to right, #654ea3, #eaafc8)
+.bg-day
+  background: linear-gradient(to bottom, #00b4db, #0083b0)
+.bg-night
+  background: linear-gradient(to bottom, #232526, #414345)  
 .degree
   top: -44px
 .skyline
   flex: 0 0 100px
-  background: url(../../public/skyline.png)
+  background: url(../statics/skyline.png)
   background-size: contain
   background-position: center bottom
+  margin-bottom: -5px 
 </style>
